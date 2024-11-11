@@ -1,16 +1,45 @@
-![Clarifai logo](https://www.clarifai.com/hs-fs/hubfs/logo/Clarifai/clarifai-740x150.png?width=240)
+# Visual Inspection Demo
 
-# Clarifai App Module Template
+## Computer Vision in Visual Inspection:
+• Automated inspection ensuring 24/7 consistency and accuracy  
+• Real-time defect detection reducing production losses  
+• Scalable solution for high-volume inspection needs  
+• Data-driven insights for process improvement
 
-This is a template repository to make it easy to get started creating a UI module with Clarifai.
+## Overview
+This is a Streamlit application demonstrating four visual inspection use cases using computer vision models trained on the Clarifai Platform:
 
+1. **Anomaly Detection**
+   - Detects product anomalies with heatmap visualization
 
-## To use this repo
+2. **Insulator Defect Detection**
+   - Identifies defects in electrical insulators
+   - Provides bounding boxes and confidence scores
 
-1. Click the "Use this template" green button on github to make a repo from this repo template and give it a name of the format module-{XYZ} filling in the XYZ portion.
-2. Clone the new repo as normal to your development environment.
-3. `pip install -r requirements.txt` to make sure you have all the Python packages installed. Add any new packages to this requirements.txt file that you add during development.
-4. Update the README.md to capture what your new module will do.
-5. Rename the pages/*.py files as you desire and start filling them in to implement your module.
-6. After you're tried things out locally, push your changes to github and get the git commit URL from there in order to create a module in Clarifai.
-7. Go to any app you can create in within Clarifai, select Modules on the left and "Create Module" button, then follow the steps.
+3. **Crack Segmentation**
+   - Segments and highlights cracks in surfaces
+   - Real-time crack region visualization
+
+4. **Surface Defect Detection**
+   - Detects defects in metal surfaces
+   - Classification with confidence scores
+
+## Setup
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+## Configuration
+- Customize via sidebar controls
+- Adjustable thresholds and display options
+- Configurable image sources
+- Visual theme customization
+
+## Models
+All models used are custom-trained using the Clarifai platform and tailored to each specific use case. The Clarifai platform simplifies the entire process of creating and training AI models, making it both easy and efficient. With just a single click, your model is not only trained but also automatically deployed, ready to enhance your business solutions instantly.
+
+- Anomaly Detection (pill-anomaly)
+- Insulator Detection (insulator-condition-inception)
+- Crack Segmentation (crack-segmentation)
+- Surface Defect Detection (surface-defects)
