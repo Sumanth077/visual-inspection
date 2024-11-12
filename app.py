@@ -34,7 +34,7 @@ USER_ID = 'clarifai'
 APP_ID = 'clarifai'
 
 # setup
-auth = ClarifaiAuthHelper.from_streamlit(pat=PAT, user_id= USER_ID, app_id = APP_ID)
+auth = ClarifaiAuthHelper.from_streamlit(user_id= USER_ID, app_id = APP_ID)
 stub = create_stub(auth)
 metadata = (('authorization', 'Key ' + PAT),)
 
