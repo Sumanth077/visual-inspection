@@ -30,7 +30,7 @@ st.set_page_config(layout="wide")
 ClarifaiStreamlitCSS.insert_default_css(st)
 
 PAT = st.secrets["CLARIFAI_PAT"]
-USER_ID = 'clarifai'
+# USER_ID = 'clarifai'
 
 # setup
 auth = ClarifaiAuthHelper.from_streamlit(st)
