@@ -1,28 +1,16 @@
 # imports
 import streamlit as st
-import ast
 import base64
 import io
 from io import BytesIO
 import requests
 import urllib
 import numpy as np
-import random
 
-from clarifai.client.app import App
-from clarifai.client.auth import create_stub
-from clarifai.client.auth.helper import ClarifaiAuthHelper
-from clarifai.client.input import Inputs
 from clarifai.client.model import Model
 from clarifai.modules.css import ClarifaiStreamlitCSS
-from clarifai_grpc.grpc.api import resources_pb2, service_pb2
 from annotated_text import annotated_text
-
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from google.protobuf.json_format import MessageToDict
-from google.protobuf.struct_pb2 import Struct
 from PIL import Image, ImageDraw, ImageFont, ImageOps
-
 from streamlit_image_select import image_select
 
 # streamlit config
@@ -30,12 +18,6 @@ st.set_page_config(layout="wide")
 ClarifaiStreamlitCSS.insert_default_css(st)
 
 PAT = st.secrets["CLARIFAI_PAT"]
-# USER_ID = 'clarifai'
-
-# setup
-auth = ClarifaiAuthHelper.from_streamlit(st)
-stub = create_stub(auth)
-metadata = (('authorization', 'Key ' + PAT),)
 
 ##########################
 #### HELPER FUNCTIONS ####
@@ -46,37 +28,13 @@ def text_color_for_background(hex_code):
     return "#000000" if is_light_or_dark(hex_code) == "light" else "#ffffff"
 
 def footer(st):
-  with open('footer.html', 'r') as file:
-    footer = file.read()
-    st.write(footer, unsafe_allow_html=True)
+    with open('footer.html', 'r') as file:
+        footer = file.read()
+        st.write(footer, unsafe_allow_html=True)
 
-def url_picture_to_base64(img, pat):
-    headers = {'Authentication': f'Key {pat}'}
-    response = requests.get(img, headers=headers)
-    img_byte = BytesIO(response.content).read()
-    return img_byte
-
-def post_model_output(stub, user_app_id, model_id, version_id, inputs, auth_metadata):
-    print(f"user_app_id:{user_app_id}")
-    print(f"model_id:{model_id} version_id: {version_id}")
-
-    res_pmo = stub.PostModelOutputs(
-        service_pb2.PostModelOutputsRequest(
-            user_app_id=user_app_id,
-            model_id=model_id,
-            version_id=version_id,
-            inputs=inputs
-        ),
-        metadata=auth_metadata
-    )
-    return res_pmo
-
-def fix_base64_padding(base64_string):
-    """Fix base64 string padding by adding '=' characters if needed."""
-    missing_padding = len(base64_string) % 4
-    if missing_padding:
-        base64_string += '=' * (4 - missing_padding)
-    return base64_string
+def url_picture_to_base64(img_url):
+    response = requests.get(img_url)
+    return response.content
 
 def display_segmented_image(pred_response, SEGMENT_IMAGE_URL):
     """Displays the segmented part of the image using the model response."""
@@ -99,7 +57,7 @@ def display_segmented_image(pred_response, SEGMENT_IMAGE_URL):
 
         for region in regions:
             masks.append(np.array(Image.open(BytesIO(region.region_info.mask.image.base64))))
-            concepts.append(region.data.concepts[0])  # Store the whole concept object
+            concepts.append(region.data.concepts[0])
 
         # Create overlay
         overlay = Image.new('RGBA', img.size, (0, 0, 0, 0))
@@ -114,7 +72,7 @@ def display_segmented_image(pred_response, SEGMENT_IMAGE_URL):
         mask_image = Image.fromarray((combined_mask * 255).astype('uint8'))
         
         # Create green overlay
-        green_overlay = Image.new('RGBA', img.size, (0, 255, 0, 102))  # 102 is 0.4 opacity in 255 scale
+        green_overlay = Image.new('RGBA', img.size, (0, 255, 0, 102))
         
         # Apply mask to green overlay
         final_overlay = Image.new('RGBA', img.size, (0, 0, 0, 0))
@@ -122,33 +80,29 @@ def display_segmented_image(pred_response, SEGMENT_IMAGE_URL):
 
         # Composite the images
         result = Image.alpha_composite(img.convert('RGBA'), final_overlay)
-        result = result.convert('RGB')  # Convert back to RGB for display
+        result = result.convert('RGB')
 
         # Display the result using Streamlit
         st.image(result, use_column_width=True)
 
         # Display confidence scores using annotated_text
         annotation_data = []
-        tag_bg_color_1 = "#00815f"  # You can adjust these colors
+        tag_bg_color_1 = "#00815f"
         tag_text_color_1 = "#ffffff"
 
-        # Create annotation data
         for concept in concepts:
             annotation_data.append(
                 (f'{concept.name}', f'{concept.value:.3f}', tag_bg_color_1, tag_text_color_1)
             )
 
-        # Create list with spaces between annotations
         list_with_empty_strings = []
         for item in annotation_data:
             list_with_empty_strings.append(item)
             list_with_empty_strings.append(" ")
 
-        # Remove trailing space if it exists
         if list_with_empty_strings and list_with_empty_strings[-1] == " ":
             list_with_empty_strings.pop()
 
-        # Display annotations
         st.write("Confidence Scores:")
         annotated_text(*tuple(list_with_empty_strings))
 
@@ -225,7 +179,6 @@ with tab1:
     try:
         st.subheader(anamoly_detection_subheader_title)
         
-        # Select example image
         img = image_select(
             label="Select an image:",
             images=anamoly_images.split('\n'),
@@ -235,23 +188,12 @@ with tab1:
         if st.button("Run Anomaly Detection"):
             st.divider()
             
-            app_id = 'anomaly-detection-tablet-pills'
-            model_id = 'pill-anomaly'
-            version_id = '38caead067764267bcfc1b0974cf3488'
-            
-            userDataObject = resources_pb2.UserAppIDSet(user_id=USER_ID, app_id=app_id)
-            
-            # Create input proto
-            inp = resources_pb2.Input(
-                data=resources_pb2.Data(
-                    image=resources_pb2.Image(
-                        base64=url_picture_to_base64(img, auth._pat)
-                    )
-                )
-            )
+            model_url = "https://clarifai.com/clarifai/anomaly-detection-tablet-pills/models/pill-anomaly"
             
             with st.spinner("Processing anomaly detection..."):
-                res_pmo = post_model_output(stub, userDataObject, model_id, version_id, [inp], metadata)
+                model = Model(url=model_url, pat=PAT)
+                res_pmo = model.predict_by_url(img, input_type="image")
+                
                 output_heatmap = res_pmo.outputs[0].data.heatmaps[0].base64
                 heatmap_im = Image.open(BytesIO(output_heatmap))
 
@@ -294,22 +236,11 @@ with tab2:
         if st.button("Run Defect Detection"):
             st.divider()
             
-            app_id = "insulator-defect-detection"
-            model_id = "insulator-condition-inception"
-            version_id = "810df853edb942d3ae45399746479ab6"
-            
-            userDataObject = resources_pb2.UserAppIDSet(user_id=USER_ID, app_id=app_id)
-            
-            inp = resources_pb2.Input(
-                data=resources_pb2.Data(
-                    image=resources_pb2.Image(
-                        base64=url_picture_to_base64(img, auth._pat)
-                    )
-                )
-            )
+            model_url = "https://clarifai.com/clarifai/insulator-defect-detection/models/insulator-condition-inception"
             
             with st.spinner("Processing defect detection..."):
-                res_pmo = post_model_output(stub, userDataObject, model_id, version_id, [inp], metadata)
+                model = Model(url=model_url, pat=PAT)
+                res_pmo = model.predict_by_url(img, input_type="image")
                 outputs = res_pmo.outputs[0]
                 regions = outputs.data.regions
 
@@ -325,11 +256,10 @@ with tab2:
                     image = Image.open(urllib.request.urlopen(img))
                     width, height = image.size
                     line_passes = 3
-                    
+
                     threshold = threshold
 
                     concept_data = []
-
                     annotation_data = []
 
                     for region in regions:
@@ -340,63 +270,60 @@ with tab2:
 
                         for concept in region.data.concepts:
                             if concept.value >= threshold:
-                              concept_data.append({
-                                      "type": concept.name, 
-                                      "confidence": concept.value,
-                                      "width": width,
-                                      "height": height,
-                                      "top_row": top_row,
-                                      "left_col": left_col,
-                                      "bottom_row": bottom_row,
-                                      "right_col": right_col
-                                    })
-                              annotation_data.append(
-                                (f'{concept.name}', f'{concept.value:.3f}', tag_bg_color_1, tag_text_color_1)
-                              )
+                                concept_data.append({
+                                    "type": concept.name, 
+                                    "confidence": concept.value,
+                                    "width": width,
+                                    "height": height,
+                                    "top_row": top_row,
+                                    "left_col": left_col,
+                                    "bottom_row": bottom_row,
+                                    "right_col": right_col
+                                })
+                                annotation_data.append(
+                                    (f'{concept.name}', f'{concept.value:.3f}', tag_bg_color_1, tag_text_color_1)
+                                )
+                        
                         img1 = ImageDraw.Draw(image)
 
                         for concept in concept_data:
-                          # create rectangle image
-                          h1 = concept["top_row"]    * height
-                          w1 = concept["left_col"]   * width
-                          h2 = concept["bottom_row"] * height
-                          w2 = concept["right_col"]  * width
+                            h1 = concept["top_row"] * height
+                            w1 = concept["left_col"] * width
+                            h2 = concept["bottom_row"] * height
+                            w2 = concept["right_col"] * width
 
-                          img1.rectangle((w1, h1, w2, h2), width=line_passes, outline='blue')
+                            img1.rectangle((w1, h1, w2, h2), width=line_passes, outline='blue')
 
-                          # calculate font size based off of image height
-                          fontsize = int(image.height / 40)
-                          font = ImageFont.load_default()
+                            fontsize = int(image.height / 40)
+                            font = ImageFont.load_default()
 
-                          offsets = [(1,0), (-1,0), (0,1), (0,-1), (1,1), (-1,-1), (1,-1), (-1,1)]  # 8 directions
-                          for offset_x, offset_y in offsets:
+                            offsets = [(1,0), (-1,0), (0,1), (0,-1), (1,1), (-1,-1), (1,-1), (-1,1)]
+                            for offset_x, offset_y in offsets:
                                 img1.text(
                                     (w1 + offset_x + line_passes, h1 + offset_y + line_passes),
                                     concept["type"],
                                     align="left",
-                                    fill='black',  # Border color
+                                    fill='black',
                                     font=font
                                 )
-                          img1.text(
-                                    (w1 + line_passes, h1 + line_passes),
-                                    concept["type"],
-                                    align="left",
-                                    fill='white',  # Text fill color
-                                    font=font
-                                )
+                            img1.text(
+                                (w1 + line_passes, h1 + line_passes),
+                                concept["type"],
+                                align="left",
+                                fill='white',
+                                font=font
+                            )
 
                     st.image(image)
-                    # Add spaces between annotations
+                    
                     list_with_empty_strings = []
                     for item in annotation_data:
                         list_with_empty_strings.append(item)
                         list_with_empty_strings.append(" ")
                     
-                    # Remove trailing space if it exists
                     if list_with_empty_strings and list_with_empty_strings[-1] == " ":
                         list_with_empty_strings.pop()
                     
-                    # Display annotations
                     st.write("Detected Regions and Confidence Scores:")
                     annotated_text(*tuple(list_with_empty_strings))
 
@@ -420,22 +347,11 @@ with tab3:
         if st.button("Run Crack Segmentation"):
             st.divider()
             
-            app_id = 'crack-segmentation'
-            model_id = 'crack-segmentation'
-            version_id = 'f5efe6a57e7e4a3d922635d5523a2a7a'
-            
-            userDataObject = resources_pb2.UserAppIDSet(user_id=USER_ID, app_id=app_id)
-            
-            inp = resources_pb2.Input(
-                data=resources_pb2.Data(
-                    image=resources_pb2.Image(
-                        base64=url_picture_to_base64(img, auth._pat)
-                    )
-                )
-            )
+            model_url = "https://clarifai.com/clarifai/crack-segmentation/models/crack-segmentation"
             
             with st.spinner("Processing crack segmentation..."):
-                res_pmo = post_model_output(stub, userDataObject, model_id, version_id, [inp], metadata)
+                model = Model(url=model_url, pat=PAT)
+                res_pmo = model.predict_by_url(img, input_type="image")
 
                 col1, col2 = st.columns(2)
                 
@@ -468,22 +384,11 @@ with tab4:
         if st.button("Run Surface Defect Detection"):
             st.divider()
             
-            app_id = "surface-defects-sheet-metal"
-            model_id = "surface-defects"
-            version_id = "edde66fb372548ad85cd830af0c55477"
-            
-            userDataObject = resources_pb2.UserAppIDSet(user_id=USER_ID, app_id=app_id)
-            
-            inp = resources_pb2.Input(
-                data=resources_pb2.Data(
-                    image=resources_pb2.Image(
-                        base64=url_picture_to_base64(img, auth._pat)
-                    )
-                )
-            )
+            model_url = "https://clarifai.com/clarifai/surface-defects-sheet-metal/models/surface-defects"
             
             with st.spinner("Processing surface defect detection..."):
-                surface_class_pred = post_model_output(stub, userDataObject, model_id, version_id, [inp], metadata)
+                model = Model(url=model_url, pat=PAT)
+                surface_class_pred = model.predict_by_url(img, input_type="image")
 
                 col1, col2 = st.columns(2)
                 
@@ -495,13 +400,11 @@ with tab4:
                 with col2:
                     st.write('Surface Defect Detection Results')
                     
-                    # Create tuples for annotation
                     concept_data = tuple([
                         (f'{x.name}', f'{x.value:.3f}', tag_bg_color_2, tag_text_color_2) 
                         for x in surface_class_pred.outputs[0].data.concepts
                     ])
 
-                    # Add spaces between annotations
                     list_with_empty_strings = []
                     for item in concept_data:
                         list_with_empty_strings.append(item)
