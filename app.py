@@ -89,11 +89,11 @@ def display_segmented_image(pred_response, SEGMENT_IMAGE_URL):
         annotation_data = []
         tag_bg_color_1 = "#00815f"
         tag_text_color_1 = "#ffffff"
-
+        
         for concept in concepts:
-            annotation_data.append(
-                (f'{concept.name}', f'{concept.value:.3f}', tag_bg_color_1, tag_text_color_1)
-            )
+          percentage = concept.value * 100
+          annotation_data.append(
+                (f'{concept.name}', f'{percentage:.2f}%', tag_bg_color_1, tag_text_color_1))
 
         list_with_empty_strings = []
         for item in annotation_data:
@@ -103,7 +103,7 @@ def display_segmented_image(pred_response, SEGMENT_IMAGE_URL):
         if list_with_empty_strings and list_with_empty_strings[-1] == " ":
             list_with_empty_strings.pop()
 
-        st.write("Confidence Scores:")
+        st.write("Detected Defect Region:")
         annotated_text(*tuple(list_with_empty_strings))
 
     except Exception as e:
@@ -136,8 +136,10 @@ with st.sidebar:
             help = "One URL per line. No quotations. Underlying code will take in the entire text box's value as a single string, then split using `theTextString.split('\n')`",
             value = 'https://s3.us-east-1.amazonaws.com/samples.clarifai.com/defect_detection_1.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/defect_detection_2.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/defect_detection_3.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/defect_detection_4.jpeg'
         )
+        box_color = st.color_picker(label='Detection Bounding box Color', value='#0000FF', key='color')
+        box_thickness = st.slider(label='Detection Bounding box Thickness', min_value=1, max_value=10, value=3)
 
-        threshold = st.slider(label='Defect Threshold', min_value=0.0, max_value=1.0, value=0.3)
+        insulator_defect_threshold = st.slider(label='Insulator Defect Threshold', min_value=0.0, max_value=1.0, value=0.3)
         tag_bg_color_1 = st.color_picker(label='Tag Background Color', value='#aabbcc', key='tag_bg_color_1')
         tag_text_color_1 = st.color_picker(label='Tag Text Color', value='#2B2D37', key='tag_text_color_1')
 
@@ -157,6 +159,8 @@ with st.sidebar:
             help = "One URL per line. No quotations. Underlying code will take in the entire text box's value as a single string, then split using `theTextString.split('\n')`",
             value = 'https://s3.us-east-1.amazonaws.com/samples.clarifai.com/surface_1.png\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/surface_2.png\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/surface_3.png\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/surface_4.png',
           )
+        surface_defect_threshold = st.slider(label='Surface Defect Threshold', min_value=0.0, max_value=1.0, value=0.5)
+
 
         st.subheader('Output Display Options')
         tag_bg_color_2 = st.color_picker(label='Tag Background Color', value='#aabbcc', key='tag_bg_color_2')
@@ -179,43 +183,63 @@ with tab1:
     try:
         st.subheader(anamoly_detection_subheader_title)
         
+        # Simple, clear descriptions for each image
+        image_descriptions = [
+            "Chipped Tablet #1 - Minor chip on the tablet’s edge.",
+            "Chipped Tablet #2 - Noticeable chip with a larger piece missing.",
+            "Chipped Tablet #3 - Major break with multiple pieces missing.",
+            "Dirty Surface - Visible dirt or residue on the tablet."
+        ]
+        
         img = image_select(
-            label="Select an image:",
+            label="Select an image to check:",
             images=anamoly_images.split('\n'),
-            captions=["Chipped #1", "Chipped #2", "Chipped #3", "Dirty"]
+            captions=image_descriptions
         )
 
         if st.button("Run Anomaly Detection"):
             st.divider()
-            
             model_url = "https://clarifai.com/clarifai/anomaly-detection-tablet-pills/models/pill-anomaly"
             
             with st.spinner("Processing anomaly detection..."):
                 model = Model(url=model_url, pat=PAT)
                 res_pmo = model.predict_by_url(img, input_type="image")
-                
                 output_heatmap = res_pmo.outputs[0].data.heatmaps[0].base64
                 heatmap_im = Image.open(BytesIO(output_heatmap))
-
+                
                 col1, col2, col3 = st.columns(3)
                 
                 with col1:
-                    st.write('Original')
+                    st.write('Original Image')
                     im1_pil = Image.open(urllib.request.urlopen(img))
                     st.image(im1_pil)
-
+                    st.caption("""
+                    The raw image of the tablet as captured.
+                    """)
+                
                 with col2:
-                    st.write('Heatmap')
+                    st.write('Heat Map')
                     heatmap_im_color = ImageOps.colorize(heatmap_im, black='red', white='black')
                     heatmap_im_color = heatmap_im_color.resize(im1_pil.size, resample=0)
                     st.image(heatmap_im_color)
-
+                    st.caption("""
+                    Visual representation of detected anomalies:
+                    - Darker red areas indicate higher likelihood of defects
+                    - Lighter/Black areas represent normal/expected conditions
+                    """)
+                
                 with col3:
+                    # st.write("Combined View")
                     st.write("Composite")
                     mask = Image.new("L", im1_pil.size, 64)
                     composite_im = Image.composite(im1_pil, heatmap_im_color, mask)
                     st.image(composite_im)
-    
+                    st.caption("""
+                    Overlay of original image and heatmap:
+                    Shows both the tablet and the problem areas together.
+                    Helps you see exactly where the defects are.
+                    """)
+                    
     except Exception as e:
         st.error(f"Error in Anomaly Detection tab: {str(e)}")
 
@@ -230,7 +254,7 @@ with tab2:
         img = image_select(
             label="Select image:",
             images=defect_images.split('\n'),
-            captions=["#1", "#2", "#3", "#4"]
+            captions=["Insulator #1", "Insulator #2", "Insulator #3", "Insulator #4"]
         )
 
         if st.button("Run Defect Detection"):
@@ -257,7 +281,7 @@ with tab2:
                     width, height = image.size
                     line_passes = 3
 
-                    threshold = threshold
+                    threshold = insulator_defect_threshold
 
                     concept_data = []
                     annotation_data = []
@@ -292,7 +316,7 @@ with tab2:
                             h2 = concept["bottom_row"] * height
                             w2 = concept["right_col"] * width
 
-                            img1.rectangle((w1, h1, w2, h2), width=line_passes, outline='blue')
+                            img1.rectangle((w1, h1, w2, h2), width=box_thickness, outline=box_color)
 
                             fontsize = int(image.height / 40)
                             font = ImageFont.load_default()
@@ -324,7 +348,7 @@ with tab2:
                     if list_with_empty_strings and list_with_empty_strings[-1] == " ":
                         list_with_empty_strings.pop()
                     
-                    st.write("Detected Regions and Confidence Scores:")
+                    st.write("Detected Regions and Confidence Levels:")
                     annotated_text(*tuple(list_with_empty_strings))
 
     except Exception as e:
@@ -375,47 +399,58 @@ with tab4:
     try:
         st.subheader(surface_defect_detection_subheader_title)
         
+        # Add threshold slider
+        threshold = surface_defect_threshold
+        
         img = image_select(
             label="Select image:",
             images=surface_images.split('\n'),
             captions=["Surface #1", "Surface #2", "Surface #3", "Surface #4"]
         )
-
+        
         if st.button("Run Surface Defect Detection"):
             st.divider()
-            
             model_url = "https://clarifai.com/clarifai/surface-defects-sheet-metal/models/surface-defects"
             
             with st.spinner("Processing surface defect detection..."):
                 model = Model(url=model_url, pat=PAT)
                 surface_class_pred = model.predict_by_url(img, input_type="image")
-
+                
                 col1, col2 = st.columns(2)
                 
                 with col1:
                     st.write('Original')
                     im1_pil = Image.open(urllib.request.urlopen(img))
                     st.image(im1_pil)
-
+                
                 with col2:
                     st.write('Surface Defect Detection Results')
+                    # Filter concepts based on threshold
+                    filtered_concepts = [
+                        x for x in surface_class_pred.outputs[0].data.concepts 
+                        if x.value >= threshold
+                    ]
                     
-                    concept_data = tuple([
-                        (f'{x.name}', f'{x.value:.3f}', tag_bg_color_2, tag_text_color_2) 
-                        for x in surface_class_pred.outputs[0].data.concepts
-                    ])
-
-                    list_with_empty_strings = []
-                    for item in concept_data:
-                        list_with_empty_strings.append(item)
-                        list_with_empty_strings.append(" ")
-                    
-                    if list_with_empty_strings and list_with_empty_strings[-1] == " ":
-                        list_with_empty_strings.pop()
-                    
-                    concept_data = tuple(list_with_empty_strings)
-                    annotated_text(*concept_data)
-    
+                    if not filtered_concepts:
+                        st.info(f"No defects detected above the confidence threshold of {threshold:.2f}")
+                    else:
+                        concept_data = tuple([
+                            (f'{x.name}', f'{x.value:.3f}', tag_bg_color_2, tag_text_color_2)
+                            for x in filtered_concepts
+                        ])
+                        
+                        # Add spacing between items
+                        list_with_empty_strings = []
+                        for item in concept_data:
+                            list_with_empty_strings.append(item)
+                            list_with_empty_strings.append(" ")
+                        
+                        if list_with_empty_strings and list_with_empty_strings[-1] == " ":
+                            list_with_empty_strings.pop()
+                        
+                        concept_data = tuple(list_with_empty_strings)
+                        annotated_text(*concept_data)
+                        
     except Exception as e:
         st.error(f"Error in Surface Defect Detection tab: {str(e)}")
 
