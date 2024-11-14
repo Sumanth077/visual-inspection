@@ -89,7 +89,7 @@ def display_segmented_image(pred_response, SEGMENT_IMAGE_URL):
         annotation_data = []
         tag_bg_color_1 = "#00815f"
         tag_text_color_1 = "#ffffff"
-        
+
         for concept in concepts:
           percentage = concept.value * 100
           annotation_data.append(
@@ -151,8 +151,8 @@ with st.sidebar:
             value = 'https://s3.us-east-1.amazonaws.com/samples.clarifai.com/crack_1.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/crack_2.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/crack_3.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/crack_4.jpeg'
         )
 
-    with st.expander('Surface Defect Detection'):
-        surface_defect_detection_subheader_title = st.text_input(label='Surface Defect Detection Subheader Text', value='✨ Leveraging Clarifai for Metal Surface Defect Detection ✨')
+    with st.expander('Surface Defect Classification'):
+        surface_defect_detection_subheader_title = st.text_input(label='Surface Defect Classification Subheader Text', value='✨ Leveraging Clarifai for Metal Surface Defect Classification ✨')
         surface_images = st.text_area(
             height = 300,
             label = 'Prepopulated Carousel Images.',
@@ -173,7 +173,7 @@ with st.sidebar:
 st.image(company_logo, width=company_logo_width)
 st.title(page_title)
 
-tab1, tab2, tab3, tab4 = st.tabs(['Anamoly Detection', 'Insulator Defect Detection', 'Crack Segmentation', 'Surface Defect Detection'])
+tab1, tab2, tab3, tab4 = st.tabs(['Anamoly Detection', 'Insulator Defect Detection', 'Crack Segmentation', 'Surface Defect Classification'])
 
 ##############################
 #### Anamoly Detection ####
@@ -239,9 +239,44 @@ with tab1:
                     Shows both the tablet and the problem areas together.
                     Helps you see exactly where the defects are.
                     """)
-                    
+
+        # Collapsible text field at the bottom
+        with st.expander("Details"):
+            st.markdown("""
+            ### About Anomaly Detection
+            Anomaly detection automatically identifies unusual patterns or defects in tablet pills that deviate from expected normal conditions. This helps in quality control by detecting manufacturing defects like chips, cracks, or contamination.
+            
+            ### How This Works
+            1. **Image Selection**: 
+                - Choose one of the tablet pill images from the Carousel
+                - Each image shows different types of defects (chips, breaks, or dirt)
+            
+            2. **Output**:
+                - Click "Run Anomaly Detection" to analyze the selected image
+                - You'll see three views:
+                    * Original Image: The unprocessed tablet photo
+                    * Heat Map: Shows detected anomalies where:
+                        - Darker red areas = Higher likelihood of defects
+                        - Lighter/Black areas = Normal conditions
+                    * Composite: Combines original image with heatmap for easy defect location
+            
+            ### Original Model
+            This implementation uses Clarifai's Anomaly Detection model for tablet pills. 
+            - View the App here: [Clarifai Pill Anomaly Detection](https://clarifai.com/clarifai/anomaly-detection-tablet-pills)
+            """)
+            
+            # Original text area for additional notes
+            project_details = st.text_area(
+                "Add Your Notes:",
+                height=100,
+                placeholder="Add any additional notes..."
+            )
+            if project_details:
+                st.markdown("### Your Notes:")
+                st.write(project_details)
+                            
     except Exception as e:
-        st.error(f"Error in Anomaly Detection tab: {str(e)}")
+      st.error(f"Error in Anomaly Detection tab: {str(e)}")
 
 #########################
 #### Defect Detection ####
@@ -350,7 +385,37 @@ with tab2:
                     
                     st.write("Detected Regions and Confidence Levels:")
                     annotated_text(*tuple(list_with_empty_strings))
-
+        with st.expander("Details"):
+          st.markdown("""
+                      ### About Defect Detection for Insulators
+                      Insulator Defect Detection detects and localizes specific defects in electrical insulators. It identifies any broken parts or flash-over damage and marks their locations on the image with bounding boxes.
+                      
+                      ### How This Works
+                      1. **Image Selection**: 
+                          - Choose one of the insulator images from the carousel
+                          - Each image shows different types of potential defects
+                      
+                      2. **Output**:
+                          - Click "Run Defect Detection" to analyze the selected image
+                          - You'll see two views:
+                              * Original Image: The unprocessed insulator image
+                              * Predicted Defects: Shows bounding boxes around detected defects with:
+                                  - Labels indicating the type of defect detected either "Broken Part" or "Flash Over"
+                                  - Confidence scores for each detection
+                      
+                      ### Original Model
+                      This implementation uses Clarifai's Insulator Defect Detection model.
+                      - View the App here: [Clarifai Insulator Defect Detection](https://clarifai.com/clarifai/insulator-defect-detection)
+                      """)
+          project_details = st.text_area(
+                                        "Add Your Notes:",
+                                        height=100,
+                                        key="defect_detection_notes",
+                                        placeholder="Add any additional notes about insulator defect detection..."
+                                        )
+          if project_details:
+                st.markdown("### Your Notes:")
+                st.write(project_details)
     except Exception as e:
         st.error(f"Error in Defect Detection tab: {str(e)}")
 
@@ -387,12 +452,44 @@ with tab3:
                 with col2:
                     st.write('Segmented Image')
                     display_segmented_image(res_pmo, img)
+        
+        with st.expander("Details"):
+          st.markdown("""
+                        ### About Crack Segmentation
+                        Crack segmentation identifies and highlights cracks in surfaces using the segmentation model.
+                        
+                        ### How This Works
+                        1. **Image Selection**: 
+                            - Choose one of the images from the carousel
+                            - Each image shows different types of surface cracks
+                        
+                        2. **Output**:
+                            - Click "Run Crack Segmentation" to analyze the selected image
+                            - You'll see two views:
+                                * Original Image: The unprocessed surface image
+                                * Segmented Image: Shows the detected cracks highlighted in green color (only appears if cracks are detected, returns a "No crack found" message if no cracks are detected)
+                            - Below the segmented image, you'll see "crack" label with percentage of the crack detected
+                               
+                        ### Original Model
+                        This implementation uses Clarifai's Crack Segmentation model.
+                        - View the App here: [Clarifai Crack Segmentation](https://clarifai.com/clarifai/crack-segmentation)
+                        """)
+    
+          project_details = st.text_area(
+                "Add Your Notes:",
+                height=100,
+                key="crack_segmentation_notes",
+                placeholder="Add any additional notes about crack detection and segmentation..."
+            )
+          if project_details:
+              st.markdown("### Your Notes:")
+              st.write(project_details)
     
     except Exception as e:
         st.error(f"Error in Crack Segmentation tab: {str(e)}")
 
 #########################
-#### Surface Defect Detection ####
+#### Surface Defect Classification ####
 #########################
 
 with tab4:
@@ -408,11 +505,11 @@ with tab4:
             captions=["Surface #1", "Surface #2", "Surface #3", "Surface #4"]
         )
         
-        if st.button("Run Surface Defect Detection"):
+        if st.button("Run Surface Defect Classification"):
             st.divider()
             model_url = "https://clarifai.com/clarifai/surface-defects-sheet-metal/models/surface-defects"
             
-            with st.spinner("Processing surface defect detection..."):
+            with st.spinner("Processing surface defect classification..."):
                 model = Model(url=model_url, pat=PAT)
                 surface_class_pred = model.predict_by_url(img, input_type="image")
                 
@@ -424,7 +521,7 @@ with tab4:
                     st.image(im1_pil)
                 
                 with col2:
-                    st.write('Surface Defect Detection Results')
+                    st.write('Surface Defect Classification Results')
                     # Filter concepts based on threshold
                     filtered_concepts = [
                         x for x in surface_class_pred.outputs[0].data.concepts 
@@ -450,9 +547,42 @@ with tab4:
                         
                         concept_data = tuple(list_with_empty_strings)
                         annotated_text(*concept_data)
+
+        with st.expander("Details"):
+          st.markdown("""
+                        ### About Surface Defect Classification
+                        Surface Defect Classification identifies various types of defects on surface materials like sheet metal. It classifies different types of surface defects like crazing, inclusion, patches, pitted-surface, rolled-in-scale, scratches and provides confidence scores for each detected defect.
                         
+                        ### How This Works
+                        1. **Image Selection**: 
+                            - Choose one of the surface images from the carousel
+                            - Each image shows different types of surface conditions
+                        
+                        2. **Output**:
+                            - Click "Run Surface Defect Classification" to analyze the selected image
+                            - You'll see two views:
+                                * Original Image: The unprocessed surface photo
+                                * Classification Results: Shows detected defect types with:
+                                    - Defect classification labels: crazing, inclusion, patches, pitted-surface, rolled-in-scale, scratches
+                                    - Confidence scores for each detected defect
+                        
+                        ### Original Model
+                        This implementation uses Clarifai's Surface Defect Classification model.
+                        - View the App here: [Clarifai Surface Defect Classification](https://clarifai.com/clarifai/surface-defects-sheet-metal)
+                        """)
+                        
+          project_details = st.text_area(
+              "Add Your Notes:",
+              height=100,
+              key="surface_defect_notes",
+              placeholder="Add any additional notes about surface defect classification..."
+          )
+          if project_details:
+              st.markdown("### Your Notes:")
+              st.write(project_details)
+
     except Exception as e:
-        st.error(f"Error in Surface Defect Detection tab: {str(e)}")
+        st.error(f"Error in Surface Defect Classification tab: {str(e)}")
 
 ####################
 ####  FOOTER    ####
