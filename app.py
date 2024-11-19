@@ -121,9 +121,9 @@ with st.sidebar:
         company_logo_width = st.slider(label='Banner Width', min_value=1, max_value=1000, value=300)
         page_title = st.text_input(label='Module Title', value='Visual Inspection Demo')
 
-    with st.expander('Anamoly Detection'):
-        anamoly_detection_subheader_title = st.text_input(label='Anamoly Detection subheader title', value='✨ Leveraging Clarifai for Anamoly Detection ✨')
-        anamoly_images = st.text_area(height = 300,
+    with st.expander('Anomaly Detection'):
+        anomaly_detection_subheader_title = st.text_input(label='Anomaly Detection subheader title', value='✨ Leveraging Clarifai for Anomaly Detection ✨')
+        anomaly_images = st.text_area(height = 300,
             label = 'Prepopulated Carousel Images.',
             help = "One URL per line. No quotations. Underlying code will take in the entire text box's value as a single string, then split using `theTextString.split('\n')`",
             value = 'https://s3.amazonaws.com/clarifai-api/img3/prod/large/c47394b31b564cf49f0157fc87ff7c3a/d364a803a427d30363defabb5ac9cdb6?t=1683122597793\nhttps://s3.amazonaws.com/clarifai-api/img3/prod/large/c47394b31b564cf49f0157fc87ff7c3a/aafd51c3511a17aad284987942cdb5c2?t=1683122612382\nhttps://s3.amazonaws.com/clarifai-api/img3/prod/large/c47394b31b564cf49f0157fc87ff7c3a/bce40a06cb39ecd513d277ecdf3ab0a7?t=1683128606787\nhttps://s3.amazonaws.com/clarifai-api/img3/prod/large/c47394b31b564cf49f0157fc87ff7c3a/f3f74ebfec4d67b3959cde25575161a0?t=1683122628342'
@@ -173,15 +173,15 @@ with st.sidebar:
 st.image(company_logo, width=company_logo_width)
 st.title(page_title)
 
-tab1, tab2, tab3, tab4 = st.tabs(['Anamoly Detection', 'Insulator Defect Detection', 'Crack Segmentation', 'Surface Defect Classification'])
+tab1, tab2, tab3, tab4 = st.tabs(['Anomaly Detection', 'Insulator Defect Detection', 'Crack Segmentation', 'Surface Defect Classification'])
 
 ##############################
-#### Anamoly Detection ####
+#### Anomaly Detection ####
 ##############################
 
 with tab1:
     try:
-        st.subheader(anamoly_detection_subheader_title)
+        st.subheader(anomaly_detection_subheader_title)
         
         # Simple, clear descriptions for each image
         image_descriptions = [
@@ -193,7 +193,7 @@ with tab1:
         
         img = image_select(
             label="Select an image to check:",
-            images=anamoly_images.split('\n'),
+            images=anomaly_images.split('\n'),
             captions=image_descriptions
         )
 
