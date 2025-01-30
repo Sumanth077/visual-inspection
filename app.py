@@ -17,6 +17,8 @@ from streamlit_image_select import image_select
 st.set_page_config(layout="wide")
 ClarifaiStreamlitCSS.insert_default_css(st)
 
+PAT = st.secrets["CLARIFAI_PAT"]
+
 ##########################
 #### HELPER FUNCTIONS ####
 ##########################
