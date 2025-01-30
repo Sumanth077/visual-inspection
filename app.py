@@ -121,38 +121,8 @@ with st.sidebar:
         company_logo_width = st.slider(label='Banner Width', min_value=1, max_value=1000, value=300)
         page_title = st.text_input(label='Module Title', value='Visual Inspection Demo')
 
-    with st.expander('Anomaly Detection'):
-        anomaly_detection_subheader_title = st.text_input(label='Anomaly Detection subheader title', value='✨ Leveraging Clarifai for Anomaly Detection ✨')
-        anomaly_images = st.text_area(height = 300,
-            label = 'Prepopulated Carousel Images.',
-            help = "One URL per line. No quotations. Underlying code will take in the entire text box's value as a single string, then split using `theTextString.split('\n')`",
-            value = 'https://s3.amazonaws.com/clarifai-api/img3/prod/large/c47394b31b564cf49f0157fc87ff7c3a/d364a803a427d30363defabb5ac9cdb6?t=1683122597793\nhttps://s3.amazonaws.com/clarifai-api/img3/prod/large/c47394b31b564cf49f0157fc87ff7c3a/aafd51c3511a17aad284987942cdb5c2?t=1683122612382\nhttps://s3.amazonaws.com/clarifai-api/img3/prod/large/c47394b31b564cf49f0157fc87ff7c3a/bce40a06cb39ecd513d277ecdf3ab0a7?t=1683128606787\nhttps://s3.amazonaws.com/clarifai-api/img3/prod/large/c47394b31b564cf49f0157fc87ff7c3a/f3f74ebfec4d67b3959cde25575161a0?t=1683122628342'
-        )
-
-    with st.expander('Insulator Defect Detection'):
-        defect_detection_subheader_title = st.text_input(label='Insulator Defect Detection Subheader Text', value='✨ Leveraging Clarifai for Insulator Defect Detection ✨')
-        defect_images = st.text_area(height = 300,
-            label = 'Prepopulated Carousel Images.',
-            help = "One URL per line. No quotations. Underlying code will take in the entire text box's value as a single string, then split using `theTextString.split('\n')`",
-            value = 'https://s3.us-east-1.amazonaws.com/samples.clarifai.com/defect_detection_1.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/defect_detection_2.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/defect_detection_3.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/defect_detection_4.jpeg'
-        )
-        box_color = st.color_picker(label='Detection Bounding box Color', value='#0000FF', key='color')
-        box_thickness = st.slider(label='Detection Bounding box Thickness', min_value=1, max_value=10, value=3)
-
-        insulator_defect_threshold = st.slider(label='Insulator Defect Threshold', min_value=0.0, max_value=1.0, value=0.3)
-        tag_bg_color_1 = st.color_picker(label='Tag Background Color', value='#aabbcc', key='tag_bg_color_1')
-        tag_text_color_1 = st.color_picker(label='Tag Text Color', value='#2B2D37', key='tag_text_color_1')
-
-    with st.expander('Crack Segmentation'):
-        segmentation_subheader_title = st.text_input(label='Crack Segmentation Subheader Text', value='✨ Leveraging Clarifai to segment cracked parts ✨')
-        crack_images = st.text_area(height = 300,
-            label = 'Prepopulated Carousel Images.',
-            help = "One URL per line. No quotations. Underlying code will take in the entire text box's value as a single string, then split using `theTextString.split('\n')`",
-            value = 'https://s3.us-east-1.amazonaws.com/samples.clarifai.com/crack_1.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/crack_2.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/crack_3.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/crack_4.jpeg'
-        )
-
     with st.expander('Surface Defect Classification'):
-        surface_defect_detection_subheader_title = st.text_input(label='Surface Defect Classification Subheader Text', value='✨ Leveraging Clarifai for Metal Surface Defect Classification ✨')
+        surface_defect_detection_subheader_title = st.text_input(label='Surface Defect Classification Subheader Text', value='✨ Classifying Sheet Metal Defects ✨')
         surface_images = st.text_area(
             height = 300,
             label = 'Prepopulated Carousel Images.',
@@ -166,6 +136,29 @@ with st.sidebar:
         tag_bg_color_2 = st.color_picker(label='Tag Background Color', value='#aabbcc', key='tag_bg_color_2')
         tag_text_color_2 = st.color_picker(label='Tag Text Color', value='#2B2D37', key='tag_text_color_2')
 
+    with st.expander('Insulator Defect Detection'):
+        defect_detection_subheader_title = st.text_input(label='Insulator Defect Detection Subheader Text', value='✨ Detecting Electrical Insulator Damage ✨')
+        defect_images = st.text_area(height = 300,
+            label = 'Prepopulated Carousel Images.',
+            help = "One URL per line. No quotations. Underlying code will take in the entire text box's value as a single string, then split using `theTextString.split('\n')`",
+            value = 'https://s3.us-east-1.amazonaws.com/samples.clarifai.com/defect_detection_1.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/defect_detection_2.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/defect_detection_3.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/defect_detection_4.jpeg'
+        )
+        box_color = st.color_picker(label='Detection Bounding box Color', value='#0000FF', key='color')
+        box_thickness = st.slider(label='Detection Bounding box Thickness', min_value=1, max_value=10, value=3)
+
+        insulator_defect_threshold = st.slider(label='Insulator Defect Threshold', min_value=0.0, max_value=1.0, value=0.3)
+        tag_bg_color_1 = st.color_picker(label='Tag Background Color', value='#aabbcc', key='tag_bg_color_1')
+        tag_text_color_1 = st.color_picker(label='Tag Text Color', value='#2B2D37', key='tag_text_color_1')
+
+    with st.expander('Crack Segmentation'):
+        segmentation_subheader_title = st.text_input(label='Crack Segmentation Subheader Text', value='✨ Segmenting and Highlighting Surface Cracks ✨')
+        crack_images = st.text_area(height = 300,
+            label = 'Prepopulated Carousel Images.',
+            help = "One URL per line. No quotations. Underlying code will take in the entire text box's value as a single string, then split using `theTextString.split('\n')`",
+            value = 'https://s3.us-east-1.amazonaws.com/samples.clarifai.com/crack_1.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/crack_2.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/crack_3.jpeg\nhttps://s3.us-east-1.amazonaws.com/samples.clarifai.com/crack_4.jpeg'
+        )
+
+
 ####################
 ####  MAIN PAGE ####
 ####################
@@ -173,114 +166,108 @@ with st.sidebar:
 st.image(company_logo, width=company_logo_width)
 st.title(page_title)
 
-tab1, tab2, tab3, tab4 = st.tabs(['Anomaly Detection', 'Insulator Defect Detection', 'Crack Segmentation', 'Surface Defect Classification'])
+tab1, tab2, tab3 = st.tabs(['[Classification] Sheet Metal', '[Detection] Electrical Insulators', '[Segmentation] Surface Cracks'])
 
-##############################
-#### Anomaly Detection ####
-##############################
+######################
+#### Sheet Metal  ####
+######################
 
 with tab1:
     try:
-        st.subheader(anomaly_detection_subheader_title)
+        st.subheader(surface_defect_detection_subheader_title)
         
-        # Simple, clear descriptions for each image
-        image_descriptions = [
-            "Chipped Tablet #1 - Minor chip on the tablet’s edge.",
-            "Chipped Tablet #2 - Noticeable chip with a larger piece missing.",
-            "Chipped Tablet #3 - Major break with multiple pieces missing.",
-            "Dirty Surface - Visible dirt or residue on the tablet."
-        ]
+        # Add threshold slider
+        threshold = surface_defect_threshold
         
         img = image_select(
-            label="Select an image to check:",
-            images=anomaly_images.split('\n'),
-            captions=image_descriptions
+            label="Select image:",
+            images=surface_images.split('\n'),
+            captions=["Surface #1", "Surface #2", "Surface #3", "Surface #4"]
         )
-
-        if st.button("Run Anomaly Detection"):
+        
+        if st.button("Run Surface Defect Classification"):
             st.divider()
-            model_url = "https://clarifai.com/clarifai/anomaly-detection-tablet-pills/models/pill-anomaly"
+            model_url = "https://clarifai.com/clarifai/surface-defects-sheet-metal/models/surface-defects"
             
-            with st.spinner("Processing anomaly detection..."):
+            with st.spinner("Processing surface defect classification..."):
                 model = Model(url=model_url, pat=PAT)
-                res_pmo = model.predict_by_url(img, input_type="image")
-                output_heatmap = res_pmo.outputs[0].data.heatmaps[0].base64
-                heatmap_im = Image.open(BytesIO(output_heatmap))
+                surface_class_pred = model.predict_by_url(img, input_type="image")
                 
-                col1, col2, col3 = st.columns(3)
+                col1, col2 = st.columns(2)
                 
                 with col1:
-                    st.write('Original Image')
+                    st.write('Original')
                     im1_pil = Image.open(urllib.request.urlopen(img))
                     st.image(im1_pil)
-                    st.caption("""
-                    The raw image of the tablet as captured.
-                    """)
                 
                 with col2:
-                    st.write('Heat Map')
-                    heatmap_im_color = ImageOps.colorize(heatmap_im, black='red', white='black')
-                    heatmap_im_color = heatmap_im_color.resize(im1_pil.size, resample=0)
-                    st.image(heatmap_im_color)
-                    st.caption("""
-                    Visual representation of detected anomalies:
-                    - Darker red areas indicate higher likelihood of defects
-                    - Lighter/Black areas represent normal/expected conditions
-                    """)
-                
-                with col3:
-                    # st.write("Combined View")
-                    st.write("Composite")
-                    mask = Image.new("L", im1_pil.size, 64)
-                    composite_im = Image.composite(im1_pil, heatmap_im_color, mask)
-                    st.image(composite_im)
-                    st.caption("""
-                    Overlay of original image and heatmap:
-                    Shows both the tablet and the problem areas together.
-                    Helps you see exactly where the defects are.
-                    """)
+                    st.write('Surface Defect Classification Results')
+                    # Filter concepts based on threshold
+                    filtered_concepts = [
+                        x for x in surface_class_pred.outputs[0].data.concepts 
+                        if x.value >= threshold
+                    ]
+                    
+                    if not filtered_concepts:
+                        st.info(f"No defects detected above the confidence threshold of {threshold:.2f}")
+                    else:
+                        concept_data = tuple([
+                            (f'{x.name}', f'{x.value:.3f}', tag_bg_color_2, tag_text_color_2)
+                            for x in filtered_concepts
+                        ])
+                        
+                        # Add spacing between items
+                        list_with_empty_strings = []
+                        for item in concept_data:
+                            list_with_empty_strings.append(item)
+                            list_with_empty_strings.append(" ")
+                        
+                        if list_with_empty_strings and list_with_empty_strings[-1] == " ":
+                            list_with_empty_strings.pop()
+                        
+                        concept_data = tuple(list_with_empty_strings)
+                        annotated_text(*concept_data)
 
-        # Collapsible text field at the bottom
         with st.expander("Details"):
-            st.markdown("""
-            ### About Anomaly Detection
-            Anomaly detection automatically identifies unusual patterns or defects in tablet pills that deviate from expected normal conditions. This helps in quality control by detecting manufacturing defects like chips, cracks, or contamination.
-            
-            ### How This Works
-            1. **Image Selection**: 
-                - Choose one of the tablet pill images from the Carousel
-                - Each image shows different types of defects (chips, breaks, or dirt)
-            
-            2. **Output**:
-                - Click "Run Anomaly Detection" to analyze the selected image
-                - You'll see three views:
-                    * Original Image: The unprocessed tablet photo
-                    * Heat Map: Shows detected anomalies where:
-                        - Darker red areas = Higher likelihood of defects
-                        - Lighter/Black areas = Normal conditions
-                    * Composite: Combines original image with heatmap for easy defect location
-            
-            ### Original Model
-            This implementation uses Clarifai's Anomaly Detection model for tablet pills. 
-            - View the App here: [Clarifai Pill Anomaly Detection](https://clarifai.com/clarifai/anomaly-detection-tablet-pills)
-            """)
-            
-            # Original text area for additional notes
-            project_details = st.text_area(
-                "Add Your Notes:",
-                height=100,
-                placeholder="Add any additional notes..."
-            )
-            if project_details:
-                st.markdown("### Your Notes:")
-                st.write(project_details)
-                            
-    except Exception as e:
-      st.error(f"Error in Anomaly Detection tab: {str(e)}")
+          st.markdown("""
+                        ### About Surface Defect Classification
+                        Surface Defect Classification identifies various types of defects on surface materials like sheet metal. It classifies different types of surface defects like crazing, inclusion, patches, pitted-surface, rolled-in-scale, scratches and provides confidence scores for each detected defect.
+                        
+                        ### How This Works
+                        1. **Image Selection**: 
+                            - Choose one of the surface images from the carousel
+                            - Each image shows different types of surface conditions
+                        
+                        2. **Output**:
+                            - Click "Run Surface Defect Classification" to analyze the selected image
+                            - You'll see two views:
+                                * Original Image: The unprocessed surface photo
+                                * Classification Results: Shows detected defect types with:
+                                    - Defect classification labels: crazing, inclusion, patches, pitted-surface, rolled-in-scale, scratches
+                                    - Confidence scores for each detected defect
+                        
+                        ### Original Model
+                        This implementation uses Clarifai's Surface Defect Classification model.
+                        - View the App here: [Clarifai Surface Defect Classification](https://clarifai.com/clarifai/surface-defects-sheet-metal)
+                        """)
+                        
+          project_details = st.text_area(
+              "Add Your Notes:",
+              height=100,
+              key="surface_defect_notes",
+              placeholder="Add any additional notes about surface defect classification..."
+          )
+          if project_details:
+              st.markdown("### Your Notes:")
+              st.write(project_details)
 
-#########################
-#### Defect Detection ####
-#########################
+    except Exception as e:
+        st.error(f"Error in Surface Defect Classification tab: {str(e)}")
+
+
+###############################
+#### Electrical Insulators ####
+###############################
 
 with tab2:
     try:
@@ -419,9 +406,9 @@ with tab2:
     except Exception as e:
         st.error(f"Error in Defect Detection tab: {str(e)}")
 
-######################
-#### Crack Segmentation ####
-######################
+########################
+#### Surface Cracks ####
+########################
 
 with tab3:
     try:
@@ -488,101 +475,6 @@ with tab3:
     except Exception as e:
         st.error(f"Error in Crack Segmentation tab: {str(e)}")
 
-#########################
-#### Surface Defect Classification ####
-#########################
-
-with tab4:
-    try:
-        st.subheader(surface_defect_detection_subheader_title)
-        
-        # Add threshold slider
-        threshold = surface_defect_threshold
-        
-        img = image_select(
-            label="Select image:",
-            images=surface_images.split('\n'),
-            captions=["Surface #1", "Surface #2", "Surface #3", "Surface #4"]
-        )
-        
-        if st.button("Run Surface Defect Classification"):
-            st.divider()
-            model_url = "https://clarifai.com/clarifai/surface-defects-sheet-metal/models/surface-defects"
-            
-            with st.spinner("Processing surface defect classification..."):
-                model = Model(url=model_url, pat=PAT)
-                surface_class_pred = model.predict_by_url(img, input_type="image")
-                
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    st.write('Original')
-                    im1_pil = Image.open(urllib.request.urlopen(img))
-                    st.image(im1_pil)
-                
-                with col2:
-                    st.write('Surface Defect Classification Results')
-                    # Filter concepts based on threshold
-                    filtered_concepts = [
-                        x for x in surface_class_pred.outputs[0].data.concepts 
-                        if x.value >= threshold
-                    ]
-                    
-                    if not filtered_concepts:
-                        st.info(f"No defects detected above the confidence threshold of {threshold:.2f}")
-                    else:
-                        concept_data = tuple([
-                            (f'{x.name}', f'{x.value:.3f}', tag_bg_color_2, tag_text_color_2)
-                            for x in filtered_concepts
-                        ])
-                        
-                        # Add spacing between items
-                        list_with_empty_strings = []
-                        for item in concept_data:
-                            list_with_empty_strings.append(item)
-                            list_with_empty_strings.append(" ")
-                        
-                        if list_with_empty_strings and list_with_empty_strings[-1] == " ":
-                            list_with_empty_strings.pop()
-                        
-                        concept_data = tuple(list_with_empty_strings)
-                        annotated_text(*concept_data)
-
-        with st.expander("Details"):
-          st.markdown("""
-                        ### About Surface Defect Classification
-                        Surface Defect Classification identifies various types of defects on surface materials like sheet metal. It classifies different types of surface defects like crazing, inclusion, patches, pitted-surface, rolled-in-scale, scratches and provides confidence scores for each detected defect.
-                        
-                        ### How This Works
-                        1. **Image Selection**: 
-                            - Choose one of the surface images from the carousel
-                            - Each image shows different types of surface conditions
-                        
-                        2. **Output**:
-                            - Click "Run Surface Defect Classification" to analyze the selected image
-                            - You'll see two views:
-                                * Original Image: The unprocessed surface photo
-                                * Classification Results: Shows detected defect types with:
-                                    - Defect classification labels: crazing, inclusion, patches, pitted-surface, rolled-in-scale, scratches
-                                    - Confidence scores for each detected defect
-                        
-                        ### Original Model
-                        This implementation uses Clarifai's Surface Defect Classification model.
-                        - View the App here: [Clarifai Surface Defect Classification](https://clarifai.com/clarifai/surface-defects-sheet-metal)
-                        """)
-                        
-          project_details = st.text_area(
-              "Add Your Notes:",
-              height=100,
-              key="surface_defect_notes",
-              placeholder="Add any additional notes about surface defect classification..."
-          )
-          if project_details:
-              st.markdown("### Your Notes:")
-              st.write(project_details)
-
-    except Exception as e:
-        st.error(f"Error in Surface Defect Classification tab: {str(e)}")
 
 ####################
 ####  FOOTER    ####
